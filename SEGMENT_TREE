@@ -1,0 +1,89 @@
+
+#include <bits/stdc++.h>
+using namespace std ;
+typedef long long LL ;
+typedef vector < LL > vLL ;
+
+
+vLL st ,arr ;
+int n , m ;
+
+int left ( int p ){ return p << 1 ; }
+int right ( int p) { return (p << 1 ) + 1 ;}
+
+void build ( int p , int L , int R ){
+     if( L == R )
+        st[p] = arr[L] ;
+     else {
+        build ( left(p) , L , (L+R)/2) ;
+        build ( right(p) , (L+R)/2+1 , R) ;
+        LL p1 = st[ left(p)] ;
+        LL p2 = st [ right(p)] ;
+        st[p] = p1+p2 ;
+     }
+}
+
+LL RSQ ( int p , int L , int R , int i , int j) {
+    if( i > R || j < L ){ return 0 ; }
+    if( L >= i && R <= j ) { return st[p] ; }
+
+    LL p1 = RSQ ( left(p) , L , (L+R)/2 , i , j) ;
+    LL p2 = RSQ ( right(p) , (L+R)/2 +1 , R , i , j ) ;
+    return p1 + p2 ;
+}
+
+LL rsq ( int x , int y){
+  return RSQ ( 1 , 0 , n-1 , x , y) ;
+}
+
+LL UPDATE ( int p , int L ,int R , int idx , int new_value ){
+
+  int i , j;
+  i = j = idx ;
+  if ( i > R || j < L )
+    return st[p] ;
+  if ( L == i && R == j){
+    arr[i] = new_value ;
+    return st[p] = arr[i] ;
+  }
+
+  LL p1 , p2 ;
+  p1 = UPDATE ( left(p) ,  L , (L+R)/2 , idx , new_value) ;
+  p2 = UPDATE ( right(p), (L+R)/2+1 , R ,  idx ,new_value ) ;
+   return  st[p] = p1 + p2 ;
+}
+
+
+LL update ( int idx ,int value){
+   return UPDATE ( 1 , 0 , n-1 , idx , value ) ;
+}
+
+
+
+int main(){
+ int i , j , k ;
+ scanf("%d %d",&n,&m);
+ for ( i = 0 ; i < n ; i++){
+     scanf("%d",&j);
+     arr.push_back(j) ;
+ }
+ st.assign ( 4*n , 0);
+ build( 1, 0 ,n-1) ;
+ LL y ;
+ char x ;
+ for ( i = 0 ; i < m ; i++){
+     cin >> x ;
+     scanf("%d %d", &j ,&k) ;
+     if( x == 'S') {
+        printf("%lld\n",rsq(j,k));
+     }
+     else if ( x == 'G' ){
+       y = update ( j , arr[j] + k) ;
+     }
+     else {
+       y = update( j , arr[j] - k );
+     }
+ }
+return 0 ;
+
+}
